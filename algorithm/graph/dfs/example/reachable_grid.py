@@ -1,0 +1,1 @@
+../../../../typical_contest/001/A.py

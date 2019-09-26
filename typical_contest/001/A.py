@@ -2,34 +2,84 @@ import sys
 input = sys.stdin.readline
 sys.setrecursionlimit(10 ** 7)
 
-h, w = map(int, input().split())
-graph = [0] * h
+h, w = [int(i) for i in input().split()]
+c = [tuple(input()) for _ in range(h)]
+
+start, goal = None, None
 for i in range(h):
-    graph[i] = input().strip()
-    if 's' in graph[i]:
-        sy, sx = i, graph[i].index('s')
-    if 'g' in graph[i]:
-        gy, gx = i, graph[i].index('g')
+    if start and goal:
+        break
+    for j in range(w):
+        if start and goal:
+            break
+        if c[i][j] == 's':
+            start = (i, j)
+            continue
+        if c[i][j] == 'g':
+            goal = (i, j)
+            continue
 
-def dfs(graph, queue, seen):
-    while queue:
-        y, x = queue.pop()
-        seen.add((y, x))
+def dfs_recursive(c, seen, current):
+    seen.add(current)
 
-        for dy, dx in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-            ny, nx = y + dy, x + dx
-            if (not (0 <= ny < h)) or (not (0 <= nx < w)):
-                continue
-            if graph[ny][nx] == '#':
-                continue
-            if (ny, nx) in seen:
-                continue
-            queue.append((ny, nx))
+    _next = []
+    next_h, next_w = current[0] - 1, current[1]
+    if next_h >= 0 and c[next_h][next_w] != '#':
+        _next.append((next_h, next_w))
 
-queue = [(sy, sx)]
+    next_h, next_w = current[0] + 1, current[1]
+    if next_h < h and c[next_h][next_w] != '#':
+        _next.append((next_h, next_w))
+
+    next_h, next_w = current[0], current[1] - 1
+    if next_w >= 0 and c[next_h][next_w] != '#':
+        _next.append((next_h, next_w))
+
+    next_h, next_w = current[0], current[1] + 1
+    if next_w < w and c[next_h][next_w] != '#':
+        _next.append((next_h, next_w))
+
+    for n in _next:
+        if n in seen:
+            continue
+        dfs_recursive(c, seen, n)
+
+def dfs_iterative(c, seen, start):
+    _next = []
+    seen.add(start)
+    _next.append(start)
+
+    while _next:
+        current = _next.pop()
+
+        next_h, next_w = current[0] - 1, current[1]
+        if next_h >= 0 and c[next_h][next_w] != '#' and (next_h, next_w) not in seen:
+            _next.append((next_h, next_w))
+            seen.add((next_h, next_w))
+
+        next_h, next_w = current[0] + 1, current[1]
+        if next_h < h and c[next_h][next_w] != '#' and (next_h, next_w) not in seen:
+            _next.append((next_h, next_w))
+            seen.add((next_h, next_w))
+
+        next_h, next_w = current[0], current[1] - 1
+        if next_w >= 0 and c[next_h][next_w] != '#' and (next_h, next_w) not in seen:
+            _next.append((next_h, next_w))
+            seen.add((next_h, next_w))
+
+        next_h, next_w = current[0], current[1] + 1
+        if next_w < w and c[next_h][next_w] != '#' and (next_h, next_w) not in seen:
+            _next.append((next_h, next_w))
+            seen.add((next_h, next_w))
+
+
+def reachable(c, seen, start, goal, dfs):
+    dfs(c, seen, start)
+    if goal in seen:
+        return 'Yes'
+    else:
+        return 'No'
+
 seen = set()
-dfs(graph, queue, seen)
-if (gy, gx) in seen:
-    print('Yes')
-else:
-    print('No')
+#print(reachable(c, seen, start, goal, dfs_recursive))
+print(reachable(c, seen, start, goal, dfs_iterative))
