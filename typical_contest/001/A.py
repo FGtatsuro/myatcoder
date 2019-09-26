@@ -20,23 +20,19 @@ for i in range(h):
             continue
 
 def dfs_recursive(c, seen, current):
+    # https://www.slideshare.net/chokudai/dfs-49066641?ref=https://atcoder.jp/contests/atc001/tasks/dfs_a
+    if not (0 <= current[0] < h) or not (0 <= current[1] < w):
+        return
+    if c[current[0]][current[1]] == '#':
+        return
+    if current in seen:
+        return
     seen.add(current)
 
-    next_h, next_w = current[0] - 1, current[1]
-    if next_h >= 0 and c[next_h][next_w] != '#' and (next_h, next_w) not in seen:
-        dfs_recursive(c, seen, (next_h, next_w))
-
-    next_h, next_w = current[0] + 1, current[1]
-    if next_h < h and c[next_h][next_w] != '#' and (next_h, next_w) not in seen:
-        dfs_recursive(c, seen, (next_h, next_w))
-
-    next_h, next_w = current[0], current[1] - 1
-    if next_w >= 0 and c[next_h][next_w] != '#' and (next_h, next_w) not in seen:
-        dfs_recursive(c, seen, (next_h, next_w))
-
-    next_h, next_w = current[0], current[1] + 1
-    if next_w < w and c[next_h][next_w] != '#' and (next_h, next_w) not in seen:
-        dfs_recursive(c, seen, (next_h, next_w))
+    dfs_recursive(c, seen, (current[0] - 1, current[1]))
+    dfs_recursive(c, seen, (current[0] + 1, current[1]))
+    dfs_recursive(c, seen, (current[0], current[1] - 1))
+    dfs_recursive(c, seen, (current[0], current[1] + 1))
 
 
 def dfs_iterative(c, seen, start):
