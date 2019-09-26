@@ -22,27 +22,22 @@ for i in range(h):
 def dfs_recursive(c, seen, current):
     seen.add(current)
 
-    _next = []
     next_h, next_w = current[0] - 1, current[1]
-    if next_h >= 0 and c[next_h][next_w] != '#':
-        _next.append((next_h, next_w))
+    if next_h >= 0 and c[next_h][next_w] != '#' and (next_h, next_w) not in seen:
+        dfs_recursive(c, seen, (next_h, next_w))
 
     next_h, next_w = current[0] + 1, current[1]
-    if next_h < h and c[next_h][next_w] != '#':
-        _next.append((next_h, next_w))
+    if next_h < h and c[next_h][next_w] != '#' and (next_h, next_w) not in seen:
+        dfs_recursive(c, seen, (next_h, next_w))
 
     next_h, next_w = current[0], current[1] - 1
-    if next_w >= 0 and c[next_h][next_w] != '#':
-        _next.append((next_h, next_w))
+    if next_w >= 0 and c[next_h][next_w] != '#' and (next_h, next_w) not in seen:
+        dfs_recursive(c, seen, (next_h, next_w))
 
     next_h, next_w = current[0], current[1] + 1
-    if next_w < w and c[next_h][next_w] != '#':
-        _next.append((next_h, next_w))
+    if next_w < w and c[next_h][next_w] != '#' and (next_h, next_w) not in seen:
+        dfs_recursive(c, seen, (next_h, next_w))
 
-    for n in _next:
-        if n in seen:
-            continue
-        dfs_recursive(c, seen, n)
 
 def dfs_iterative(c, seen, start):
     _next = []
