@@ -2,40 +2,49 @@ import sys
 input = sys.stdin.readline
 sys.setrecursionlimit(10 ** 7)
 
-n, m, s, t = list(map(int, input().split()))
-graph = [0] + [[] for _ in range(n)]
+n, m, s, t = map(int, input().split())
+s -= 1
+t -= 1
+graph_yen = [[] for _ in range(n)]
+graph_sunuke = [[] for _ in range(n)]
 for _ in range(m):
-    u, v, a, b = list(map(int, input().split()))
-    # (cost, dest)
-    graph[u].append(({'yen': a, 'sunuke': b}, v))
-    graph[v].append(({'yen': a, 'sunuke': b}, u))
+    u, v, a, b = map(int, input().split())
+    u -= 1
+    v -= 1
+    graph_yen[u].append((a, v))
+    graph_yen[v].append((a, u))
+    graph_sunuke[u].append((b, v))
+    graph_sunuke[v].append((b, u))
 
 import heapq
 
-def dijkstra(graph, queue, dist, cost_type):
+INITIAL = 10 ** 15
+INF = 10 ** 16
+
+def dijkstra(graph, start):
+    queue = [(0, start)]
+    dist = [INF] * n
+    dist[start] = 0
+
     while queue:
-        d, n = heapq.heappop(queue)
-        if dist[n] != -1 and dist[n] < d:
+        cost, current = heapq.heappop(queue)
+        if cost > dist[current]:
             continue
-        for cost, next_n in graph[n]:
-            cost_with_type = cost[cost_type]
-            if dist[next_n] > d + cost_with_type:
-                dist[next_n] = d + cost_with_type
-                heapq.heappush(queue, (dist[next_n], next_n))
+        for next_cost, _next in graph[current]:
+            if dist[_next] > dist[current] + next_cost:
+                dist[_next] = dist[current] + next_cost
+                heapq.heappush(queue, (dist[_next], _next))
+    return dist
+cost_yen = dijkstra(graph_yen, s)
+cost_sunuke = dijkstra(graph_sunuke, t)
 
-queue = [(0, s)]
-dist_yen = [10 ** 16] + [10 ** 16] * n
-dist_yen[s] = 0
-dijkstra(graph, queue, dist_yen, 'yen')
+from collections import deque
+ans = deque()
+min_cost = INF
+for i in range(n-1, -1, -1):
+    cost = cost_yen[i] + cost_sunuke[i]
+    min_cost = min(min_cost, cost)
+    ans.appendleft(INITIAL - min_cost)
 
-queue = [(0, t)]
-dist_sunuke = [10 ** 16] + [10 ** 16] * n
-dist_sunuke[t] = 0
-dijkstra(graph, queue, dist_sunuke, 'sunuke')
-
-# FYI: https://atcoder.jp/contests/soundhound2018-summer-qual/submissions/10738125
-answer = [0] + [0] * n
-for i in range(n, 0, -1):
-    answer[i - 1] = max(answer[i], 10 ** 15 - (dist_yen[i] + dist_sunuke[i]))
-for i in range(n):
-    print(answer[i])
+for v in ans:
+    print(v)
